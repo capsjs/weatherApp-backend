@@ -8,8 +8,8 @@ const API_KEY = '2e31b5fe95d02cf485c00cb6ae61b70e';
 
 router.post('/', (req, res) => {
   City.findOne({ cityName: { $regex: new RegExp(req.body.cityName, 'i')} })
-  .then(data => {
-    if(data === null) {
+  .then(dbData => {
+    if(dbData === null) {
       fetch(`http://api.openweathermap.org/data/2.5/weather?q=${req.body.cityName}&appid=${API_KEY}&units=metric`)
         .then(response => response.json())
         .then(apiData => {
@@ -20,7 +20,6 @@ router.post('/', (req, res) => {
             tempMin: apiData.main.temp_min,
             tempMax: apiData.main.temp_max,
           });
-
           newCity.save().then(newDoc => {
             res.json({ result: true, weather: newDoc });
           });
