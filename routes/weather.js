@@ -1,16 +1,16 @@
 var express = require('express');
 var router = express.Router();
 
-const fetch = require('node-fetch');
-const City = require('../models/cities');
+const fetch = require("node-fetch");
+const City = require("../models/cities");
 
 const API_KEY = '2e31b5fe95d02cf485c00cb6ae61b70e';
 
-router.post('/', (req, res) => {
-  City.findOne({ cityName: { $regex: new RegExp(req.body.cityName, 'i')} })
+router.post("/", (req, res) => {
+  City.findOne({cityName: { $regex: new RegExp(req.body.cityName, 'i')} })
   .then(dbData => {
     if(dbData === null) {
-      fetch(`http://api.openweathermap.org/data/2.5/weather?q=${req.body.cityName}&appid=${API_KEY}&units=metric`)
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${req.body.cityName}&appid=${API_KEY}&units=metric`)
         .then(response => response.json())
         .then(apiData => {
           const newCity = new City({
@@ -25,7 +25,7 @@ router.post('/', (req, res) => {
           });
         });
     } else {
-      res.json({ result: false, error:  'City already savec' });
+      res.json({ result: false, error:  'City already saved' });
     }
   });
 });
@@ -46,7 +46,7 @@ router.delete('/:cityName', (req, res) => {
   City.deleteOne({
     cityName: { $regex: new RegExp(req.params.cityName, "i")}
   }).then(deleteDoc => {
-    if(deleteDoc.deleteCount > 0) {
+    if(deleteDoc.deletedCount > 0) {
       City.find().then(data => {
         res.json({ result: true, weather: data });
       });
@@ -56,4 +56,13 @@ router.delete('/:cityName', (req, res) => {
   });
 });
 
+router.get('/', (req, res) => {
+  City.find().then(data => {
+    if(data.length > 0) {
+      res.json({ result: true, weather: data });
+    } else {
+      res.json({ result: false, error: 'No city found' });
+    }
+  });
+});
 module.exports = router;
