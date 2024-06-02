@@ -27,6 +27,4 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/weather', weatherRouter);
 
-
-
 module.exports = app;
